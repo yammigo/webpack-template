@@ -3,6 +3,7 @@ const utils = require("./utils");
 const path = require("path");
 const MinCssExtractPlugin = require("mini-css-extract-plugin"); // 将css代码提取为独立文件的插件
 const OptimizeCssAssetsWebpackPlugin = require("optimize-css-assets-webpack-plugin"); // css模块资源优化插件
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 
 // webpack4中对于css模块的处理需要用到的插件及功能：
@@ -44,7 +45,7 @@ module.exports = {
     // 出口
     output: {
         filename: "js/[name].[hash:7].js",
-        path: utils.resolve('../dist'),
+        path: utils.resolve('dist'),
         publicPath: ""
             // publicPath: "./" // 打包后的资源的访问路径前缀
     },
@@ -58,49 +59,71 @@ module.exports = {
                 loader: 'babel-loader', //loader的名称（必须）
             },
             {
-                test: /\.css$/,
+                test: /\.(less|css)$/,
                 // include: [path.resolve(__dirname, 'src')],   // 限制打包范围，提高打包速度
                 exclude: /node_modules/, // 排除node_modules文件夹
                 use: [
-                    // {
-                    //     loader: 'style-loader', // 创建 <style></style>
-                    // },
+
                     {
-                        loader: MinCssExtractPlugin.loader // 将处理后的CSS代码提取为独立的CSS文件，可以只在生产环境中配置，但我喜欢保持开发环境与生产环境尽量一致
+                        loader: 'style-loader', // 创建 <style></style>
                     },
+
+                    // {
+                    //     loader: MinCssExtractPlugin.loader, // 将处理后的CSS代码提取为独立的CSS文件，可以只在生产环境中配置，
+                    //     // options: {
+                    //     //     publicPath: '../',
+                    //     // },
+                    // },
+
+
                     {
                         loader: 'css-loader', // 转换css
                     },
-                    {
-                        loader: "postcss-loader" //承载autoprefixer功能，为css添加前缀
-                    },
-                ]
-            },
-            {
-                test: /\.less$/,
-                // include: [path.resolve(__dirname, 'src')],   // 限制打包范围，提高打包速度
-                exclude: /node_modules/, // 排除node_modules文件夹
-                use: [
-                    // {
-                    //     loader: 'style-loader',
-                    // },
-                    {
-                        loader: MinCssExtractPlugin.loader // 将处理后的CSS代码提取为独立的CSS文件，可以只在生产环境中配置，但我喜欢保持开发环境与生产环境尽量一致
-                    },
-                    {
-                        loader: 'css-loader',
-                    },
-                    {
-                        loader: "postcss-loader" //承载autoprefixer功能，为css添加前缀
-                    },
+
                     {
                         loader: 'less-loader', // 编译 Less -> CSS
                         options: { // loader 的额外参数，配置视具体 loader 而定
                             sourceMap: true, // 要安装resolve-url-loader，当此配置项启用 sourceMap 才能正确加载 Sass 里的相对路径资源，类似background: url(../image/test.png)
                         }
                     },
-                ],
+                    {
+                        loader: "postcss-loader" //承载autoprefixer功能，为css添加前缀
+                    },
+
+
+
+                ]
             },
+            // {
+            //     test: /\.less$/,
+            //     // include: [path.resolve(__dirname, 'src')],   // 限制打包范围，提高打包速度
+            //     exclude: /node_modules/, // 排除node_modules文件夹
+            //     use: [
+            //         // {
+            //         //     loader: 'style-loader',
+            //         // },
+
+            //         {
+            //             loader: MinCssExtractPlugin.loader // 将处理后的CSS代码提取为独立的CSS文件，可以只在生产环境中配置，
+            //         },
+
+            //         {
+            //             loader: 'css-loader',
+            //         },
+            //         {
+            //             loader: "postcss-loader" //承载autoprefixer功能，为css添加前缀
+            //         },
+            //         {
+            //             loader: 'less-loader', // 编译 Less -> CSS
+            //             options: { // loader 的额外参数，配置视具体 loader 而定
+            //                 sourceMap: true, // 要安装resolve-url-loader，当此配置项启用 sourceMap 才能正确加载 Sass 里的相对路径资源，类似background: url(../image/test.png)
+            //             }
+            //         },
+
+
+
+            //     ],
+            // },
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
                 loader: 'url-loader',
@@ -122,16 +145,22 @@ module.exports = {
 
     },
     plugins: [
-        new webpack.ProgressPlugin(),
+        // new webpack.ProgressPlugin(),
         //不需要编译的文件直接拷贝进去
-        // new CopyWebpackPlugin({
-        //     patterns: [{
-        //             from: utils.resolve('../static'), // 从哪个目录copy
-        //             to: utils.resolve('../dist/static')
-        //         }
+        new CopyWebpackPlugin({
+            patterns: [{
+                    from: utils.resolve('static'), // 从哪个目录copy
+                    to: utils.resolve('dist/static')
+                }
 
-        //     ]
-        // })
+            ]
+        }),
+        new MinCssExtractPlugin({
+            //为抽取出的独立的CSS文件设置配置参数
+            filename: "css/[name].[hash:7].css",
+            // chunkFilename: '[id].[hash:7].css',
+        })
+
     ],
     optimization: {
         // 找到chunk中共享的模块,取出来生成单独的chunk
@@ -152,9 +181,9 @@ module.exports = {
             }
         },
         // 为 webpack 运行时代码创建单独的chunk
-        runtimeChunk: {
-            name: "manifest"
-        },
+        // runtimeChunk: {
+        //     name: "manifest"
+        // },
         //对生成的CSS文件进行代码压缩 mode='production'时生效
         minimizer: [
             new OptimizeCssAssetsWebpackPlugin()
@@ -163,12 +192,12 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.json'], // 解析扩展。（当我们通过路导入文件，找不到改文件时，会尝试加入这些后缀继续寻找文件）
         alias: {
-            '@': path.join(__dirname, '..', "src") // 在项目中使用@符号代替src路径，导入文件路径更方便
+            '@': path.join(__dirname, "src") // 在项目中使用@符号代替src路径，导入文件路径更方便
         }
     },
     // 配置webpack执行相关
-    performance: {
-        maxEntrypointSize: 1000000, // 最大入口文件大小1M
-        maxAssetSize: 1000000 // 最大资源文件大小1M
-    }
+    // performance: {
+    //     maxEntrypointSize: 1000000, // 最大入口文件大小1M
+    //     maxAssetSize: 1000000 // 最大资源文件大小1M
+    // }
 }

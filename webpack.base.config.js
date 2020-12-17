@@ -4,17 +4,18 @@ const path = require("path");
 const MinCssExtractPlugin = require("mini-css-extract-plugin"); // 将css代码提取为独立文件的插件
 const OptimizeCssAssetsWebpackPlugin = require("optimize-css-assets-webpack-plugin"); // css模块资源优化插件
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const WebpackBar = require("webpackbar");
 
 
 // webpack4中对于css模块的处理需要用到的插件及功能：
-
+//extract-text-webpack-plugin 合并css
 // style-loader：将处理结束的css代码存储在js中，运行时嵌入<style>后挂载到html页面上
 // css-loader：加载器，使webpack可以识别css文件
 // postcss-loader：加载器，承载autoprefixer功能。是对css的扩展，编译后转换成正常的css且会自动加上前缀，配合 autoprefixer 使用。
 // sass-loader：加载器，使webpack可以识别sass/scss文件，默认使用node-sass进行编译，
 // mini-css-extract-plugin：插件，webpack4启用的插件，可以将处理后的css代码提取为单独的css文件
 // optimize-css-assets-webpack-plugin：插件，实现css代码压缩
-// autoprefixer：自动化添加跨浏览器兼容前缀
+// autoprefixer@8.0.0：自动化添加跨浏览器兼容前缀
 
 
 // 配置入口对象与html-webpack-plugin实例集合，约定对应html的js与html同名以便自动化生成入口对象
@@ -38,6 +39,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 
 module.exports = {
+    stats: "minimal",
     // 入口
     entry: {
         app: "./src/index"
@@ -46,8 +48,9 @@ module.exports = {
     output: {
         filename: "js/[name].[hash:7].js",
         path: utils.resolve('dist'),
-        publicPath: ""
-            // publicPath: "./" // 打包后的资源的访问路径前缀
+        publicPath: "",
+        libraryTarget: 'umd',
+        // publicPath: "./" // 打包后的资源的访问路径前缀
     },
     // devtool: "inline-source-map",
 
@@ -147,6 +150,9 @@ module.exports = {
     plugins: [
         // new webpack.ProgressPlugin(),
         //不需要编译的文件直接拷贝进去
+        new WebpackBar({
+            name: `webpack`, //配置加载进度
+        }),
         new CopyWebpackPlugin({
             patterns: [{
                     from: utils.resolve('static'), // 从哪个目录copy

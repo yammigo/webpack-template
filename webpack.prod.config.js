@@ -24,8 +24,27 @@ module.exports = webpackMerge.merge(baseWebpackConfig, {
             }
         }),
         new uglify({
-            parallel: true
+            parallel: true,
+
+            uglifyOptions: {
+                // 删除注释
+                output: {
+                    comments: false
+                },
+                // 删除console debugger 删除警告
+                compress: {
+                    // warnings: false,
+                    drop_console: true, //console
+                    drop_debugger: false,
+                    pure_funcs: ['console.log'] //移除console
+                }
+            }
+
         }),
+        new webpack.BannerPlugin(
+            ` author:fanjiantao \n date: ${new Date().toLocaleString()} \n email: 1418154909@qq.com`,
+        )
+
 
     ],
 })

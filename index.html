@@ -7,10 +7,17 @@
     <title>reactProject</title>
     <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
     <link rel="stylesheet" href="static/css/reset.main.css">
+    <style>
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body>
-    <button class="prev">后退</button>
+    <button class="prev">上一页</button>
     <!-- <div class="tagBox">
         <div class="tagViews">
             <span class="tagItem active">首页<span class="close">✖</span></span>
@@ -27,7 +34,7 @@
             <span class="tagItem border">安全设置选项</span>
         </div>
     </div> -->
-    <button class="next">前进</button>
+    <button class="next">下一页</button>
     <button class="addTag" data-url="https://www.baidu.com">百度</button>
     <button class="addTag" data-url="https://www.hao123.com">hao123</button>
     <button class="addTag" data-url="https://blog.csdn.net/lyh6665/article/details/107929324">csdn</button>
@@ -36,8 +43,9 @@
     <button class="addTag" data-url="http://www.dangdang.com/">当当</button>
     <button class="addTag" data-url="https://www.weibo.com/">微博网</button>
     <button class="addTag" data-url="https://www.tencent.com/zh-cn">腾讯网</button>
+    <button class="reload">刷新</button>
     <div class="Nav"></div>
-    <div class="frameBox" style="width:100%;height:400px;">
+    <div class="frameBox" style="width:100%;height:calc(100% - 60px);">
 
     </div>
 </body>

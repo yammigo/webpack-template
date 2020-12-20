@@ -50,6 +50,8 @@ module.exports = {
         path: utils.resolve('dist'),
         publicPath: "",
         libraryTarget: 'umd',
+        libraryExport: "default"
+
         // publicPath: "./" // 打包后的资源的访问路径前缀
     },
     // devtool: "inline-source-map",

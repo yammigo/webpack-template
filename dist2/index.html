@@ -1,37 +1,19 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset=utf-8>
-    <meta name=viewport content="width=device-width,initial-scale=1">
-    <title>reactProject</title>
-    <script src=http://localhost:82/Scripts/ChartScript/script/jquery-1.8.2.min.js></script>
-    <link rel=stylesheet href=static/css/reset.main.css>
-    <script src="./js/tagView.js"></script>
-    <style>
-        body,
+<!DOCTYPE html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>reactProject</title><script src=http://libs.baidu.com/jquery/1.9.0/jquery.js></script><link rel=stylesheet href=static/css/reset.main.css><style>body,
         html {
             width: 100%;
             height: 100%;
-        }
-    </style>
-</head>
-
-<body><button class=prev>上一页</button> <button class=next>下一页</button> <button class=addTag data-url=https://www.baidu.com>百度</button> <button class=addTag data-url=https://www.hao123.com>hao123</button> <button class=addTag data-url=https://blog.csdn.net/lyh6665/article/details/107929324>csdn</button>    <button class=addTag data-url=https://gitee.com/>gitee</button> <button class=addTag data-url=http://www.people.com.cn/>人民网</button> <button class=addTag data-url=http://www.dangdang.com/>当当</button> <button class=addTag data-url=https://www.weibo.com/>微博网</button>
-    <button class=addTag data-url=https://www.tencent.com/zh-cn>腾讯网</button> <button class=reload>刷新</button>
-    <div class=Nav></div>
-    <div class=frameBox style="width:100%;height:calc(100% - 60px);"></div>
-    <script>
-        $(function() {
+            background: #eee;
+        }</style></head><body><button class=prev>上一页</button> <button class=next>下一页</button> <button class=addTag data-url=https://www.baidu.com>百度</button> <button class=addTag data-url=https://www.hao123.com>hao123</button> <button class=addTag data-url=https://blog.csdn.net/lyh6665/article/details/107929324>csdn</button> <button class=addTag data-url=https://gitee.com/ >gitee</button> <button class=addTag data-url=http://www.people.com.cn/ >人民网</button> <button class=addTag data-url=http://www.dangdang.com/ >当当</button> <button class=addTag data-url=https://www.weibo.com/ >微博网</button> <button class=addTag data-url=https://www.tencent.com/zh-cn>腾讯网</button> <button class=reload>刷新</button><div><div class=prev style="display:inline-block;height:30px;line-height:30px;width:35px;text-align: center;float:left;cursor:pointer">《</div><div class=Nav style="width:calc(100% - 115px);margin:auto;display:inline-block;float: left;"></div><div class=next style="display:inline-block;height:30px;line-height:30px;width: 35px;text-align:center;float: left;cursor:pointer">》</div><div class=reload style="display:inline-block;height:30px;line-height:30px;width: 35px;text-align:center;float: left;fongt-size:14px;cursor:pointer">刷新</div><div style="clear: both;"></div></div><iframe src=https://www.baidu.com style=display:none;height:1px;></iframe><div class=frameBox style="width:100%;height:calc(100% - 60px);"></div><script>$(function() {
             var tagView = new TagView({
                 el: ".Nav", //标签页承载的容器
                 frameEl: ".frameBox", // iframe 承载的容器
-                height: 37, // tagView的高度
+                height: 30, // tagView的高度
                 tagList: [{
-                    path: "https://wwww.baidu.com",
-                    title: "百度一下",
+                    path: "https://www.baidu.com",
+                    title: "百度",
                     active: true, //是否选中
                     isAffix: true, //是否固定
+                    preload: false //是否预加载自行实现预加载方式
                 }]
             })
             $(".next").on('click', function() {
@@ -46,8 +28,4 @@
             $(".reload").click(function() {
                 tagView.refresh();
             })
-        })
-    </script>
-</body>
-
-</html>
+        })</script><script src=js/app.b3765fd.js?b3765fd3a74fc78cc8ad></script></body></html>

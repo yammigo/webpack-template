@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <title>reactProject</title>
+    <script src=http://localhost:82/Scripts/ChartScript/script/jquery-1.8.2.min.js></script>
+    <link rel=stylesheet href=static/css/reset.main.css>
+    <script src="./js/tagView.js"></script>
+    <style>
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body><button class=prev>上一页</button> <button class=next>下一页</button> <button class=addTag data-url=https://www.baidu.com>百度</button> <button class=addTag data-url=https://www.hao123.com>hao123</button> <button class=addTag data-url=https://blog.csdn.net/lyh6665/article/details/107929324>csdn</button>    <button class=addTag data-url=https://gitee.com/>gitee</button> <button class=addTag data-url=http://www.people.com.cn/>人民网</button> <button class=addTag data-url=http://www.dangdang.com/>当当</button> <button class=addTag data-url=https://www.weibo.com/>微博网</button>
+    <button class=addTag data-url=https://www.tencent.com/zh-cn>腾讯网</button> <button class=reload>刷新</button>
+    <div class=Nav></div>
+    <div class=frameBox style="width:100%;height:calc(100% - 60px);"></div>
+    <script>
+        $(function() {
+            var tagView = new TagView({
+                el: ".Nav", //标签页承载的容器
+                frameEl: ".frameBox", // iframe 承载的容器
+                height: 37, // tagView的高度
+                tagList: [{
+                    path: "https://wwww.baidu.com",
+                    title: "百度一下",
+                    active: true, //是否选中
+                    isAffix: true, //是否固定
+                }]
+            })
+            $(".next").on('click', function() {
+                tagView.next();
+            })
+            $(".prev").on('click', function() {
+                tagView.prev();
+            })
+            $(".addTag").click(function() {
+                tagView.addTagView($(this).text().trim(), $(this).data("url").trim())
+            })
+            $(".reload").click(function() {
+                tagView.refresh();
+            })
+        })
+    </script>
+</body>
+
+</html>

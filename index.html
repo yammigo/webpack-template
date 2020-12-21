@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>reactProject</title>
-    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <!-- <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script> -->
+    <script src="http://localhost:82/Scripts/ChartScript/script/jquery-1.8.2.min.js"></script>
     <link rel="stylesheet" href="static/css/reset.main.css">
     <style>
         body,
@@ -48,6 +49,33 @@
     <div class="frameBox" style="width:100%;height:calc(100% - 60px);">
 
     </div>
+    <script>
+        $(function() {
+            var tagView = new TagView({
+                el: ".Nav", //标签页承载的容器
+                frameEl: ".frameBox", // iframe 承载的容器
+                height: 40, // tagView的高度
+                tagList: [{
+                    path: "https://wwww.baidu.com",
+                    title: "百度一下",
+                    active: true, //是否选中
+                    isAffix: true, //是否固定
+                }]
+            })
+            $(".next").on('click', function() {
+                tagView.next();
+            })
+            $(".prev").on('click', function() {
+                tagView.prev();
+            })
+            $(".addTag").click(function() {
+                tagView.addTagView($(this).text().trim(), $(this).data("url").trim())
+            })
+            $(".reload").click(function() {
+                tagView.refresh();
+            })
+        })
+    </script>
 </body>
 
 </html>

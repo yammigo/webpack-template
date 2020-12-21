@@ -55,18 +55,18 @@ function createIframeView(data) {
     var frame = $(`<iframe style="width:100%;height:100%;display:none;" src=${path}  frameborder="0"></iframe>`);
     $(".frameViewBox").append(frame);
     console.log("加载中")
-    frame.load(function() {
-
+    frame.off("load").on("load", function() {
+        console.log(arguments)
         console.log(frame.index(), "加载完成")
     })
 }
 
-function addTagView(data) {
+function addTagView(data, _this) {
     let cheackIndex = cheackTag(data);
     if (typeof cheackIndex == "number") { moveView(cheackIndex); return };
     let { title, path, id } = data;
     $(".tagViews .tagItem").removeClass("active").addClass("border");
-    let newTag = $(`<span class="tagItem active" data-id="${id}" data-path="${path}">${title}<span class="close" title="关闭标签页">✖</span></span>`);
+    let newTag = !_this ? $(`<span class="tagItem active"  data-id="${id}" data-path="${path}">${title}<span class="close" title="关闭标签页">✖</span></span>`) : $(`<span class="tagItem active" ${_this?`style="line-height:${_this.layOutData.lineHeight}px"`:''} data-id="${id}" data-path="${path}">${title}<span class="close" ${_this.layOutData?`style="margin-top:${_this.layOutData.closeMarginTop}px"`:''} title="关闭标签页">✖</span></span>`);
     $(".tagViews").append(newTag);
     $(newTag).prev().removeClass("border");
     createIframeView(data);
@@ -75,27 +75,56 @@ function addTagView(data) {
 }
 
 function TagView(opt) {
+    var Namespace = "VanUi-";
     //初始化布局
     this.data = $.extend({}, opt);
     var data = this.data;
+    var viewHeight = "";
+    var scrollBarWidth = function() {
+        var scrollDiv = document.createElement("div");
+        scrollDiv.style.cssText = 'width: 99px; height: 99px; overflow: scroll; position: absolute; top: -9999px;';
+        document.body.appendChild(scrollDiv);
+        var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+        document.body.removeChild(scrollDiv);
+        return scrollbarWidth;
+    }();
+    if (typeof data.height == 'number' && data.height > 0) {
+        viewHeight = (scrollBarWidth - 7) + data.height;
+
+    } else {
+        viewHeight = (scrollBarWidth - 7) + $(data.el).height();
+
+    }
+
+    var lineHeight = viewHeight - scrollBarWidth;
+    var closeMarginTop = (lineHeight - 15) / 2;
+    console.log("lineHeight", lineHeight);
+    console.log("layoutHeight", viewHeight);
+    console.log("closeMarginTop", closeMarginTop);
     var tagDom = "";
     var layOut = "";
     var viewBox = ""
     var frames = "";
     var activeIndex = ""
+    this.layOutData = {
+        lineHeight: lineHeight,
+        closeMarginTop: closeMarginTop,
+        viewHeight: viewHeight
+    }
+    var layOutData = this.layOutData;
     if (data.tagList) {
         $.each(data.tagList, function(index, val) {
             let { title, path, id, active, isAffix, } = val;
             if (active) {
                 activeIndex = index;
             }
-            tagDom += `<span class="tagItem ${active?"active":""}"  data-path="${path}">${title}${isAffix?"":'<span class="close" title="关闭标签页">✖</span></span>'}`
+            tagDom += `<span class="tagItem ${active?"active":""}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${path}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span></span>`}`
             frames += `<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${path}  frameborder="0"></iframe>`
         })
         viewBox = `<div class="frameViewBox" style="width:100%;height:100%;overflow:hidden;">${frames}</div>`
-        layOut = `<div class="tagBox"><div class="tagViews">${tagDom}</div></div>`
+        layOut = `<div class="tagBox" ${data.height&&`style="height:${data.height}px"`} ><div class="tagViews" style="height:${layOutData.viewHeight}px" >${tagDom}</div></div>`
     } else {
-        layOut = `<div class="tagBox"><div class="tagViews"></div></div>`
+        layOut = `<div class="tagBox"><div class="tagViews" style="height:${layOutData.viewHeight}px" ></div></div>`
         viewBox = '<div class="frameViewBox" style="width:100%;height:100%;overflow:hidden;"></div>'
     }
 
@@ -140,7 +169,7 @@ TagView.prototype = {
     constructor: TagView,
     addTagView(title, path) {
         //添加
-        tagData = {
+        var tagData = {
             title: title,
             path: path,
             id: Math.round().toString(16).slice(2)
@@ -167,16 +196,17 @@ TagView.prototype = {
     }
 }
 
-new TagView({
-    el: ".Nav",
-    frameEl: ".frameBox",
-    tagList: [{
-        path: "https://wwww.baidu.com",
-        title: "百度一下",
-        active: true,
-        isAffix: true,
-    }]
-})
+// new TagView({
+//     el: ".Nav",
+//     frameEl: ".frameBox",
+//     height: 37,
+//     tagList: [{
+//         path: "https://wwww.baidu.com",
+//         title: "百度一下",
+//         active: true,
+//         isAffix: true,
+//     }]
+// })
 
 
 // $(".tagViews").on('click', ".tagItem", function() {
@@ -185,50 +215,23 @@ new TagView({
 //     $(this).addClass("active").removeClass("border");
 //     moveTag();
 // })
-$(".next").on('click', function() {
-    var currentLeft = $(".tagViews").scrollLeft();
-    $(".tagViews").stop().animate({ scrollLeft: currentLeft + $(".tagViews").width() }, 500)
-})
-$(".prev").on('click', function() {
-    var currentLeft = $(".tagViews").scrollLeft();
-    $(".tagViews").stop().animate({ scrollLeft: currentLeft - $(".tagViews").width() }, 500)
-})
-$(".addTag").click(function() {
-    addTagView({ title: $(this).text().trim(), path: $(this).data("url").trim() })
-})
-$(".reload").click(function() {
-        var index = $(".tagViews .tagItem.active").index();
-        var frame = $(".frameViewBox iframe").eq(index);
-        frame.attr("src", frame.attr("src"));
-        console.log("刷新中");
-        moveTag();
-        // console.log("加载中1")
-    })
-    // $(".tagViews").on('click', ".tagItem .close", function(event) {
-    //         event.stopPropagation();
-    //         var currentTag = $(this).parent();
-    //         if (currentTag.hasClass("active")) {
-
-//             if ($(this).parent().index() == $(".tagViews .tagItem").length - 1) {
-//                 currentTag = $(this).parent().prev();
-//                 $(".tagViews .tagItem").removeClass("active").addClass("border");
-
-//                 currentTag.prev().removeClass("border")
-//                 currentTag.addClass("active").removeClass("border");
-//             } else {
-//                 currentTag = $(this).parent().next();
-//                 $(".tagViews .tagItem").removeClass("active").addClass("border");
-//                 console.log(currentTag.prev()[0], "当前删除的元素")
-//                 $(this).parent().prev().removeClass("border")
-//                 currentTag.addClass("active").removeClass("border");
-//             }
-
-//         }
+// $(".next").on('click', function() {
+//     var currentLeft = $(".tagViews").scrollLeft();
+//     $(".tagViews").stop().animate({ scrollLeft: currentLeft + $(".tagViews").width() }, 500)
+// })
+// $(".prev").on('click', function() {
+//     var currentLeft = $(".tagViews").scrollLeft();
+//     $(".tagViews").stop().animate({ scrollLeft: currentLeft - $(".tagViews").width() }, 500)
+// })
+// $(".addTag").click(function() {
+//     addTagView({ title: $(this).text().trim(), path: $(this).data("url").trim() },vthis)
+// })
+// $(".reload").click(function() {
+//         var index = $(".tagViews .tagItem.active").index();
+//         var frame = $(".frameViewBox iframe").eq(index);
+//         frame.attr("src", frame.attr("src"));
+//         console.log("刷新中");
 //         moveTag();
-//         $(".frameViewBox iframe").eq($(this).parent().index()).remove();
-//         $(this).parent().remove();
-
 //     })
-//dom 操作部分结束
-
-export default TagView;
+    //dom 操作部分结束
+export { TagView };

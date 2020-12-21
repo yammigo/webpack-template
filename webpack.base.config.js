@@ -49,8 +49,9 @@ module.exports = {
         filename: "js/[name].[hash:7].js",
         path: utils.resolve('dist'),
         publicPath: "",
+        library: "TagView",
         libraryTarget: 'umd',
-        libraryExport: "default"
+        libraryExport: "TagView"
 
         // publicPath: "./" // 打包后的资源的访问路径前缀
     },

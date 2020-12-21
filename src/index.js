@@ -5,17 +5,19 @@ function moveTag() {
     var currentTag = $(".tagViews .tagItem.active");
     // console.log(currentTag.index())
     // console.log(currentTag.index());
-    if (!currentTag.offset()) return;
-    var left = currentTag.offset().left;
+    if (!currentTag.position()) return;
+    var left = currentTag.position().left;
+    console.log(left)
     var viewWidth = $(".tagViews").width();
+    // console.log(currentTag.position().left, "offset");
     var currentWidth = currentTag.outerWidth();
     var currentLeft = $(".tagViews").scrollLeft();
     var nextWidth = currentTag.next().outerWidth();
     if ((nextWidth + left + currentWidth - viewWidth) > 0) {
         $(".tagViews").animate({ scrollLeft: currentLeft + (nextWidth + left + currentWidth - viewWidth) }, 500)
     }
-    if (currentTag.prev().offset() && currentTag.prev().offset().left <= 0) {
-        $(".tagViews").animate({ scrollLeft: currentLeft + currentTag.prev().offset().left }, 500)
+    if (currentTag.prev().position() && currentTag.prev().position().left <= 0) {
+        $(".tagViews").animate({ scrollLeft: currentLeft + currentTag.prev().position().left }, 500)
     } else {
         if (left <= 0) {
             $(".tagViews").animate({ scrollLeft: 0 }, 500)

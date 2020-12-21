@@ -41,8 +41,9 @@ function cheackTag(data) {
     var check_index = null;
     //检测传入的tag是否是已经打开的tag
     $(".frameViewBox iframe").each(function(index, item) {
+        console.log($(item).attr("src"), data.path);
         if ($(item).attr("src") == data.path) {
-            // console.log(index, "当前的iframe 打开的地方")
+
             check_index = index;
         }
 
@@ -89,10 +90,10 @@ function TagView(opt) {
         return scrollbarWidth;
     }();
     if (typeof data.height == 'number' && data.height > 0) {
-        viewHeight = (scrollBarWidth - 7) + data.height;
+        viewHeight = scrollBarWidth+ data.height;
 
     } else {
-        viewHeight = (scrollBarWidth - 7) + $(data.el).height();
+        viewHeight = scrollBarWidth  + $(data.el).height();
 
     }
 
@@ -114,12 +115,12 @@ function TagView(opt) {
     var layOutData = this.layOutData;
     if (data.tagList) {
         $.each(data.tagList, function(index, val) {
-            let { title, path, id, active, isAffix, } = val;
+            let { title, path, id, active, isAffix, preload} = val;
             if (active) {
                 activeIndex = index;
             }
             tagDom += `<span class="tagItem ${active?"active":""}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${path}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span></span>`}`
-            frames += `<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${path}  frameborder="0"></iframe>`
+            frames += preload?"":`<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${path}  frameborder="0"></iframe>`
         })
         viewBox = `<div class="frameViewBox" style="width:100%;height:100%;overflow:hidden;">${frames}</div>`
         layOut = `<div class="tagBox" ${data.height&&`style="height:${data.height}px"`} ><div class="tagViews" style="height:${layOutData.viewHeight}px" >${tagDom}</div></div>`
@@ -234,4 +235,7 @@ TagView.prototype = {
 //         moveTag();
 //     })
     //dom 操作部分结束
-export { TagView };
+// export { TagView };
+// module.exports={TagView}
+// export default {TagView}
+export {TagView}

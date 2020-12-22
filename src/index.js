@@ -1,72 +1,73 @@
 import "./index.less";
+// import Observer from "./utils/observe"
+
+/**
+ * url参数匹配规则
+ */
+
+//匹配指定字段
+//"mgrqispi.dll?APPNAME=HRsoft2000&PRGNAME=MainFrame_Main&ARGUMENTS=-AS3363858644529894882".replace(/(?<=ARGUMENTS=)[\S\s]*(?=\&|)?/gi,'fanjiantao')
 
 //缓存工具方法
 var dbUtil = {
-    dbType: !!window.localStorage ? "local" : navigator.cookieEnabled ? "cookie" : "var",
-    setData: function(key, value, t) {
+        dbType: !!window.localStorage ? "local" : navigator.cookieEnabled ? "cookie" : "var",
+        setData: function(key, value, t) {
 
-        if (this.dbType == 'cookie') {
-            var oDate = new Date();
-            oDate.setDate(oDate.getDate() + (t || 30));
-            document.cookie = key + "=" + value + "; expires=" + oDate.toDateString();
+            if (this.dbType == 'cookie') {
+                var oDate = new Date();
+                oDate.setDate(oDate.getDate() + (t || 30));
+                document.cookie = key + "=" + value + "; expires=" + oDate.toDateString();
 
-        }
-        if (this.dbType == "local") {
-            window.localStorage.setItem(key, value)
-        }
-        if (this.dbType == "var") {
-            window[key] = value;
-        }
+            }
+            if (this.dbType == "local") {
+                window.localStorage.setItem(key, value)
+            }
+            if (this.dbType == "var") {
+                window[key] = value;
+            }
 
-    },
-    getData: function(key) {
-        if (this.dbType == "cookie") {
-            var arr1 = document.cookie.split("; ");
-            for (var i = 0; i < arr1.length; i++) {
-                var arr2 = arr1[i].split("=");
-                if (arr2[0] == key) {
-                    return decodeURI(arr2[1]);
+        },
+        getData: function(key) {
+            if (this.dbType == "cookie") {
+                var arr1 = document.cookie.split("; ");
+                for (var i = 0; i < arr1.length; i++) {
+                    var arr2 = arr1[i].split("=");
+                    if (arr2[0] == key) {
+                        return decodeURI(arr2[1]);
+                    }
                 }
             }
-        }
-        if (this.dbType == "local") {
-            return window.localStorage.getItem(key);
-        }
-        if (this.dbType == "var") {
-            return window[key];
-        }
-    },
-    removeData: function(key) {
-        if (this.dbType == "cookie") {
-            this.setData(key, "", -1); // 把cookie设置为过期
-        }
-        if (this.dbType == "local") {
-            window.localStorage.removeItem(key)
-        }
-        if (this.dbType == "var") {
-            window[key] = null;
+            if (this.dbType == "local") {
+                return window.localStorage.getItem(key);
+            }
+            if (this.dbType == "var") {
+                return window[key];
+            }
+        },
+        removeData: function(key) {
+            if (this.dbType == "cookie") {
+                this.setData(key, "", -1); // 把cookie设置为过期
+            }
+            if (this.dbType == "local") {
+                window.localStorage.removeItem(key)
+            }
+            if (this.dbType == "var") {
+                window[key] = null;
+            }
         }
     }
-}
-
-//store
+    //store
 var store = {
-    tagIds: [], // 标签存储地址
-    tagUrls: [], //标签地址存储
-
-}
-
-//dom 操作部分开始
+        tagIds: [], // 标签存储地址
+        tagUrls: [], //标签地址存储
+    }
+    //dom 操作部分开始
 function moveTag() {
     //移动tag和视图
     var currentTag = $(".tagViews .tagItem.active");
-    // console.log(currentTag.index())
-    // console.log(currentTag.index());
     if (!currentTag.position()) return;
     var left = currentTag.position().left;
-    console.log(left)
     var viewWidth = $(".tagViews").width();
-    // console.log(currentTag.position().left, "offset");
     var currentWidth = currentTag.outerWidth();
     var currentLeft = $(".tagViews").scrollLeft();
     var nextWidth = currentTag.next().outerWidth();
@@ -81,8 +82,13 @@ function moveTag() {
         }
     }
 
+    //不存在的iframe 重新创建
+    if (cheackTag({ path: currentTag.attr("data-path") }) == -1) {
+        createIframeView({ path: currentTag.attr("data-path") });
+    }
+
     $(".frameViewBox iframe").hide();
-    $(".frameViewBox iframe").eq(currentTag.index()).show();
+    $(".frameViewBox iframe").eq(cheackTag({ path: currentTag.attr("data-path") })).show();
 
 }
 
@@ -91,16 +97,15 @@ function moveView(index) {
     $(".tagViews .tagItem").eq(index).prev().removeClass("border");
     $(".tagViews .tagItem").eq(index).addClass("active").removeClass("border");
     moveTag();
-
 }
 
 
 
 function cheackTag(data) {
-    var check_index = null;
+    var check_index = -1;
     //检测传入的tag是否是已经打开的tag
     $(".frameViewBox iframe").each(function(index, item) {
-        console.log($(item).attr("src"), data.path);
+        // console.log($(item).attr("src"), data.path);
         if ($(item).attr("src") == data.path) {
 
             check_index = index;
@@ -123,7 +128,7 @@ function createIframeView(data) {
 
 function addTagView(data, _this) {
     let cheackIndex = cheackTag(data);
-    if (typeof cheackIndex == "number") { moveView(cheackIndex); return };
+    if (cheackIndex > -1) { moveView(cheackIndex); return };
     let { title, path, id } = data;
     $(".tagViews .tagItem").removeClass("active").addClass("border");
     let newTag = !_this ? $(`<span class="tagItem active"  data-id="${id}" data-path="${path}">${title}<span class="close" title="关闭标签页">✖</span></span>`) : $(`<span class="tagItem active" ${_this?`style="line-height:${_this.layOutData.lineHeight}px"`:''} data-id="${id}" data-path="${path}">${title}<span class="close" ${_this.layOutData?`style="margin-top:${_this.layOutData.closeMarginTop}px"`:''} title="关闭标签页">✖</span></span>`);
@@ -134,11 +139,47 @@ function addTagView(data, _this) {
 
 }
 
+/**
+ * path 参数处理
+ */
+function pathReplace(path,params){
+   if(typeof params == 'object' && JSON.stringify(params)!=="{}"){
+            var pathlimit=path.split("&");
+            for(let i=0;i<pathlimit.length;i++){
+                for (const key in params) {
+                    if (Object.hasOwnProperty.call(params, key)) {
+                    let keyVal = pathlimit[i].split("=");
+                    if(keyVal[0].toLocaleLowerCase().indexOf(key.toString().toLocaleLowerCase())>-1){
+                            keyVal[1]=params[key];
+                    }
+                    pathlimit[i]=keyVal.join("=")
+                        
+                    }
+                }
+            }
+
+        return pathlimit.join("&");
+
+   }else{
+       console.log('sadsada')
+       return path
+   }
+   
+    // $.each(params,function(key,value){
+    //     console.log(key,value);
+    // })
+}
+
+/**
+ * 用于实例化的主类
+ * @param {opt} opt 
+ */
 function TagView(opt) {
     var Namespace = "VanUi-";
     //初始化布局
     this.data = $.extend({}, opt);
     var data = this.data;
+    console.log(data.params,"参数字段");
     var viewHeight = "";
     var scrollBarWidth = function() {
         var scrollDiv = document.createElement("div");
@@ -178,8 +219,8 @@ function TagView(opt) {
             if (active) {
                 activeIndex = index;
             }
-            tagDom += `<span class="tagItem ${active?"active":""}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${path}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span>`}</span>`
-            frames += preload?"":`<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${path}  frameborder="0"></iframe>`
+            tagDom += `<span class="tagItem ${active?"active":""}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${pathReplace(path,data.params)}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span>`}</span>`
+            frames += preload?`<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${pathReplace(path,data.params)}  frameborder="0"></iframe>`:"";
         })
         viewBox = `<div class="frameViewBox" style="width:100%;height:100%;overflow:hidden;">${frames}</div>`
         layOut = `<div class="tagBox" ${data.height&&`style="height:${data.height}px"`} ><div class="tagViews" style="height:${layOutData.viewHeight}px" >${tagDom}</div></div>`

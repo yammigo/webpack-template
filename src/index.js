@@ -1,7 +1,64 @@
 import "./index.less";
+
+//缓存工具方法
+var dbUtil = {
+    dbType: !!window.localStorage ? "local" : navigator.cookieEnabled ? "cookie" : "var",
+    setData: function(key, value, t) {
+
+        if (this.dbType == 'cookie') {
+            var oDate = new Date();
+            oDate.setDate(oDate.getDate() + (t || 30));
+            document.cookie = key + "=" + value + "; expires=" + oDate.toDateString();
+
+        }
+        if (this.dbType == "local") {
+            window.localStorage.setItem(key, value)
+        }
+        if (this.dbType == "var") {
+            window[key] = value;
+        }
+
+    },
+    getData: function(key) {
+        if (this.dbType == "cookie") {
+            var arr1 = document.cookie.split("; ");
+            for (var i = 0; i < arr1.length; i++) {
+                var arr2 = arr1[i].split("=");
+                if (arr2[0] == key) {
+                    return decodeURI(arr2[1]);
+                }
+            }
+        }
+        if (this.dbType == "local") {
+            return window.localStorage.getItem(key);
+        }
+        if (this.dbType == "var") {
+            return window[key];
+        }
+    },
+    removeData: function(key) {
+        if (this.dbType == "cookie") {
+            this.setData(key, "", -1); // 把cookie设置为过期
+        }
+        if (this.dbType == "local") {
+            window.localStorage.removeItem(key)
+        }
+        if (this.dbType == "var") {
+            window[key] = null;
+        }
+    }
+}
+
+//store
+var store = {
+    tagIds: [], // 标签存储地址
+    tagUrls: [], //标签地址存储
+
+}
+
 //dom 操作部分开始
 function moveTag() {
-
+    //移动tag和视图
     var currentTag = $(".tagViews .tagItem.active");
     // console.log(currentTag.index())
     // console.log(currentTag.index());
@@ -55,7 +112,7 @@ function cheackTag(data) {
 
 function createIframeView(data) {
     var { title, path, id } = data;
-    var frame = $(`<iframe style="width:100%;height:100%;display:none;" src=${path}  frameborder="0"></iframe>`);
+    var frame = $(`<iframe style="width:100%;height:100%;display:none;" src=${path} id=${id} frameborder="0"></iframe>`);
     $(".frameViewBox").append(frame);
     console.log("加载中")
     frame.off("load").on("load", function() {
@@ -121,7 +178,7 @@ function TagView(opt) {
             if (active) {
                 activeIndex = index;
             }
-            tagDom += `<span class="tagItem ${active?"active":""}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${path}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span></span>`}`
+            tagDom += `<span class="tagItem ${active?"active":""}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${path}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span>`}</span>`
             frames += preload?"":`<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${path}  frameborder="0"></iframe>`
         })
         viewBox = `<div class="frameViewBox" style="width:100%;height:100%;overflow:hidden;">${frames}</div>`

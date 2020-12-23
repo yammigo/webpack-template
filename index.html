@@ -20,22 +20,6 @@
 
 <body>
     <button class="prev">上一页</button>
-    <!-- <div class="tagBox">
-        <div class="tagViews">
-            <span class="tagItem active">首页<span class="close">✖</span></span>
-            <span class="tagItem border">入职监控<span class="close">✖</span></span>
-            <span class="tagItem border">调查问卷管理</span>
-            <span class="tagItem border">我的信息确认</span>
-            <span class="tagItem border">我的信息</span>
-            <span class="tagItem border">转正查询</span>
-            <span class="tagItem border">绩效管理</span>
-            <span class="tagItem border">人力资源计划</span>
-            <span class="tagItem border">外部数据设计</span>
-            <span class="tagItem border">培训教室使用</span>
-            <span class="tagItem border">能力字典</span>
-            <span class="tagItem border">安全设置选项</span>
-        </div>
-    </div> -->
     <button class="next">下一页</button>
     <button class="addTag" data-url="https://www.baidu.com">百度</button>
     <button class="addTag" data-url="https://www.hao123.com">hao123</button>
@@ -59,7 +43,11 @@
     </div>
     <script>
         $(function() {
+            //tagList 为默认加载的标签页
             var tagView = new TagView({
+                cache: {
+                    table: "tableData" //缓存表名
+                },
                 el: ".Nav", //标签页承载的容器
                 frameEl: ".frameBox", // iframe 承载的容器
                 height: 30, // tagView的高度
@@ -68,27 +56,24 @@
                 //     "PRGNAME": "fanjiantao"
                 // }, //"url需要替换的参数"
                 tagList: [{
-                    path: "https://www.baidu.com?id=append&arguments=D001",
-                    title: "百度",
+                    path: "https://www.baidu.com",
+                    title: "首页",
                     active: true, //是否选中
                     isAffix: true, //是否固定
-                    preload: true //是否预加载自行实现预加载方式
-                }, {
-                    path: "https://www.ifeng.com/?arguments=qweqeqe",
-                    title: "凤凰网"
+                    preload: false //是否预加载自行实现预加载方式
                 }]
             })
             $(".next").on('click', function() {
-                tagView.next();
+                tagView.next(); //下一页
             })
             $(".prev").on('click', function() {
-                tagView.prev();
+                tagView.prev(); // 上一页
             })
             $(".addTag").click(function() {
-                tagView.addTagView($(this).text().trim(), $(this).data("url").trim())
+                tagView.addTagView($(this).text().trim(), $(this).data("url").trim()) //添加标签 参数1为title 参数2 为url 地址
             })
             $(".reload").click(function() {
-                tagView.refresh();
+                tagView.refresh(); //刷新当前选中的标签页
             })
         })
     </script>

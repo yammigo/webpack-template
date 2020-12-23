@@ -8,6 +8,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin"); // 每次运行�
 module.exports = webpackMerge.merge(baseWebpackConfig, {
     // 指定构建环境  
     mode: "production",
+    devtool: false,
     // 插件
     plugins: [
         new CleanWebpackPlugin(),

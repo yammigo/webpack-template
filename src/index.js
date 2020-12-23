@@ -1,67 +1,91 @@
 import "./index.less";
-// import Observer from "./utils/observe"
 
 /**
  * url参数匹配规则
  */
-
 //匹配指定字段
 //"mgrqispi.dll?APPNAME=HRsoft2000&PRGNAME=MainFrame_Main&ARGUMENTS=-AS3363858644529894882".replace(/(?<=ARGUMENTS=)[\S\s]*(?=\&|)?/gi,'fanjiantao')
-
 //缓存工具方法
 var dbUtil = {
+        table: "local",
+        cache: true,
         dbType: !!window.localStorage ? "local" : navigator.cookieEnabled ? "cookie" : "var",
-        setData: function(key, value, t) {
-
+        setData: function(value, t) {
+            if (!this.cache) { return };
             if (this.dbType == 'cookie') {
                 var oDate = new Date();
                 oDate.setDate(oDate.getDate() + (t || 30));
-                document.cookie = key + "=" + value + "; expires=" + oDate.toDateString();
+
+                document.cookie = this.table + "=" + value + "; expires=" + oDate.toDateString();
 
             }
             if (this.dbType == "local") {
-                window.localStorage.setItem(key, value)
+
+                window.localStorage.setItem(this.table, value)
             }
             if (this.dbType == "var") {
-                window[key] = value;
+                window[this.table] = value;
             }
-
         },
-        getData: function(key) {
+        getData: function() {
             if (this.dbType == "cookie") {
                 var arr1 = document.cookie.split("; ");
                 for (var i = 0; i < arr1.length; i++) {
                     var arr2 = arr1[i].split("=");
-                    if (arr2[0] == key) {
+                    if (arr2[0] == this.table) {
                         return decodeURI(arr2[1]);
                     }
                 }
             }
             if (this.dbType == "local") {
-                return window.localStorage.getItem(key);
+                return window.localStorage.getItem(this.table);
             }
             if (this.dbType == "var") {
-                return window[key];
+                return window[this.table];
             }
         },
-        removeData: function(key) {
+        removeData: function() {
             if (this.dbType == "cookie") {
-                this.setData(key, "", -1); // 把cookie设置为过期
+                this.setData(this.table, "", -1); // 把cookie设置为过期
             }
             if (this.dbType == "local") {
-                window.localStorage.removeItem(key)
+                window.localStorage.removeItem(this.table);
             }
             if (this.dbType == "var") {
-                window[key] = null;
+                window[this.table] = null;
             }
         }
     }
     //store
 var store = {
-        tagIds: [], // 标签存储地址
-        tagUrls: [], //标签地址存储
+        activeIndex: -1,
+        tagList: [],
     }
     //dom 操作部分开始
+    //全局获取浏览器滚动条的宽度
+var scrollBarWidth = function() {
+    var scrollDiv = document.createElement("div");
+    scrollDiv.style.cssText = 'width: 99px; height: 99px; overflow: scroll; position: absolute; top: -9999px;';
+    document.body.appendChild(scrollDiv);
+    var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+    document.body.removeChild(scrollDiv);
+    return scrollbarWidth;
+}();
+
+//数组对象去重
+function distinct(arr, key) {
+    var newobj = {},
+        newArr = [];
+    for (var i = 0; i < arr.length; i++) {
+        var item = arr[i];
+        if (!newobj[item[key]]) {
+            newobj[item[key]] = newArr.push(item);
+        }
+    }
+    return newArr;
+}
+
+
 function moveTag() {
     //移动tag和视图
     var currentTag = $(".tagViews .tagItem.active");
@@ -83,12 +107,19 @@ function moveTag() {
     }
 
     //不存在的iframe 重新创建
-    if (cheackTag({ path: currentTag.attr("data-path") }) == -1) {
+    var check_index = checkView({ path: currentTag.attr("data-path") })
+    if (check_index == -1) {
         createIframeView({ path: currentTag.attr("data-path") });
     }
 
     $(".frameViewBox iframe").hide();
-    $(".frameViewBox iframe").eq(cheackTag({ path: currentTag.attr("data-path") })).show();
+    $(".frameViewBox iframe").eq(check_index).show();
+    store.activeIndex = currentTag.index();
+    dbUtil.setData(JSON.stringify(store));
+    console.log(store, "当前存储数据")
+        // console.log("修改store 中对应的数据", store.tagList[currentTag.index()]);
+        //进行数据存储
+
 
 }
 
@@ -96,14 +127,13 @@ function moveView(index) {
     $(".tagViews .tagItem").removeClass("active").addClass("border");
     $(".tagViews .tagItem").eq(index).prev().removeClass("border");
     $(".tagViews .tagItem").eq(index).addClass("active").removeClass("border");
+
     moveTag();
 }
 
-
-
-function cheackTag(data) {
+function checkView(data) {
+    //检测是否已创建iframe
     var check_index = -1;
-    //检测传入的tag是否是已经打开的tag
     $(".frameViewBox iframe").each(function(index, item) {
         // console.log($(item).attr("src"), data.path);
         if ($(item).attr("src") == data.path) {
@@ -115,10 +145,26 @@ function cheackTag(data) {
     return check_index;
 }
 
+function cheackTag(data) {
+    var check_index = -1;
+    //检测传入的tag是否是已经打开的tag
+    $(".tagViews .tagItem").each(function(index, item) {
+        // console.log($(item).attr("src"), data.path);
+        if ($(item).attr("data-path") == data.path) {
+
+            check_index = index;
+        }
+
+    })
+    return check_index;
+}
+
 function createIframeView(data) {
     var { title, path, id } = data;
     var frame = $(`<iframe style="width:100%;height:100%;display:none;" src=${path} id=${id} frameborder="0"></iframe>`);
+
     $(".frameViewBox").append(frame);
+    frame[0].src = path;
     console.log("加载中")
     frame.off("load").on("load", function() {
         console.log(arguments)
@@ -127,12 +173,15 @@ function createIframeView(data) {
 }
 
 function addTagView(data, _this) {
+
     let cheackIndex = cheackTag(data);
     if (cheackIndex > -1) { moveView(cheackIndex); return };
     let { title, path, id } = data;
     $(".tagViews .tagItem").removeClass("active").addClass("border");
     let newTag = !_this ? $(`<span class="tagItem active"  data-id="${id}" data-path="${path}">${title}<span class="close" title="关闭标签页">✖</span></span>`) : $(`<span class="tagItem active" ${_this?`style="line-height:${_this.layOutData.lineHeight}px"`:''} data-id="${id}" data-path="${path}">${title}<span class="close" ${_this.layOutData?`style="margin-top:${_this.layOutData.closeMarginTop}px"`:''} title="关闭标签页">✖</span></span>`);
     $(".tagViews").append(newTag);
+    console.log("添加store 中对应的数据");
+    store.tagList.push(data);
     $(newTag).prev().removeClass("border");
     createIframeView(data);
     moveTag();
@@ -177,18 +226,10 @@ function pathReplace(path,params){
 function TagView(opt) {
     var Namespace = "VanUi-";
     //初始化布局
-    this.data = $.extend({}, opt);
+    this.data = $.extend(true,{}, opt);
     var data = this.data;
     console.log(data.params,"参数字段");
     var viewHeight = "";
-    var scrollBarWidth = function() {
-        var scrollDiv = document.createElement("div");
-        scrollDiv.style.cssText = 'width: 99px; height: 99px; overflow: scroll; position: absolute; top: -9999px;';
-        document.body.appendChild(scrollDiv);
-        var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
-        document.body.removeChild(scrollDiv);
-        return scrollbarWidth;
-    }();
     if (typeof data.height == 'number' && data.height > 0) {
         viewHeight = scrollBarWidth+ data.height;
 
@@ -212,15 +253,44 @@ function TagView(opt) {
         closeMarginTop: closeMarginTop,
         viewHeight: viewHeight
     }
+    
     var layOutData = this.layOutData;
-    if (data.tagList) {
-        $.each(data.tagList, function(index, val) {
+    var tagList =[];
+    if(data.cache && typeof data.cache=="object" && JSON.stringify(data.cache) !=="{}"){
+        data.cache.table&&(dbUtil.table=data.cache.table);//存储空间
+        try {
+            store=JSON.parse(dbUtil.getData());
+            activeIndex=store.activeIndex;
+            
+        } catch (error) {
+            store={activeIndex:-1,tagList:[]}
+        }
+      
+        tagList = distinct(data.tagList.concat(store.tagList,),"path");
+        store.tagList= tagList;
+    }else{
+        tagList=data.tagList;
+    }
+    // console.log(distinct(data.tagList.concat(store.tagList),"path"));
+    if (tagList) {
+        console.log(activeIndex,"缓存里面的index")
+        // console.log(data.tagList)
+        // console.log($.extend(data.tagList,store.tagList));
+        // console.log(store.tagList);
+        $.each(tagList, function(index, val) {
             let { title, path, id, active, isAffix, preload} = val;
             if (active) {
-                activeIndex = index;
+
+                if(activeIndex>-1){
+                    
+                }else{
+                  activeIndex = index;
+                }
+                
             }
-            tagDom += `<span class="tagItem ${active?"active":""}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${pathReplace(path,data.params)}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span>`}</span>`
-            frames += preload?`<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${pathReplace(path,data.params)}  frameborder="0"></iframe>`:"";
+            tagDom += `<span class="tagItem ${activeIndex==index?"active":"border"}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${pathReplace(path,data.params)}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span>`}</span>`
+            
+            //frames += preload?`<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${pathReplace(path,data.params)}  frameborder="0"></iframe>`:"";
         })
         viewBox = `<div class="frameViewBox" style="width:100%;height:100%;overflow:hidden;">${frames}</div>`
         layOut = `<div class="tagBox" ${data.height&&`style="height:${data.height}px"`} ><div class="tagViews" style="height:${layOutData.viewHeight}px" >${tagDom}</div></div>`
@@ -232,6 +302,7 @@ function TagView(opt) {
     $(function() {
         $(data.el).append(layOut);
         $(data.frameEl).append(viewBox);
+        moveTag();
         $(".tagViews").on('click', ".tagItem", function() {
             $(".tagViews .tagItem").removeClass("active").addClass("border");
             $(this).prev().removeClass("border");
@@ -258,10 +329,18 @@ function TagView(opt) {
                 }
 
             }
-            moveTag();
-            $(".frameViewBox iframe").eq($(this).parent().index()).remove();
-            $(this).parent().remove();
+          
+            var cheacIndex= checkView({path:$(this).parent().attr("data-path")})
+            if(cheacIndex>-1){
+                $(".frameViewBox iframe").eq(cheacIndex).remove();
+            }
 
+            console.log("删除store 中对应的数据",$(this).parent().index())
+            store.tagList.splice($(this).parent().index(),1);
+           
+            $(this).parent().remove();
+            moveTag();
+           
         })
     })
 }
@@ -289,53 +368,10 @@ TagView.prototype = {
     },
     refresh() {
         //刷新
-        var index = $(".tagViews .tagItem.active").index();
-        var frame = $(".frameViewBox iframe").eq(index);
+        var activeUrl = $(".tagViews .tagItem.active").attr("data-path");
+        var frame = $(".frameViewBox iframe").eq(checkView({path:activeUrl}));
         frame.attr("src", frame.attr("src"));
-        console.log("刷新中");
         moveTag();
     }
 }
-
-// new TagView({
-//     el: ".Nav",
-//     frameEl: ".frameBox",
-//     height: 37,
-//     tagList: [{
-//         path: "https://wwww.baidu.com",
-//         title: "百度一下",
-//         active: true,
-//         isAffix: true,
-//     }]
-// })
-
-
-// $(".tagViews").on('click', ".tagItem", function() {
-//     $(".tagViews .tagItem").removeClass("active").addClass("border");
-//     $(this).prev().removeClass("border");
-//     $(this).addClass("active").removeClass("border");
-//     moveTag();
-// })
-// $(".next").on('click', function() {
-//     var currentLeft = $(".tagViews").scrollLeft();
-//     $(".tagViews").stop().animate({ scrollLeft: currentLeft + $(".tagViews").width() }, 500)
-// })
-// $(".prev").on('click', function() {
-//     var currentLeft = $(".tagViews").scrollLeft();
-//     $(".tagViews").stop().animate({ scrollLeft: currentLeft - $(".tagViews").width() }, 500)
-// })
-// $(".addTag").click(function() {
-//     addTagView({ title: $(this).text().trim(), path: $(this).data("url").trim() },vthis)
-// })
-// $(".reload").click(function() {
-//         var index = $(".tagViews .tagItem.active").index();
-//         var frame = $(".frameViewBox iframe").eq(index);
-//         frame.attr("src", frame.attr("src"));
-//         console.log("刷新中");
-//         moveTag();
-//     })
-    //dom 操作部分结束
-// export { TagView };
-// module.exports={TagView}
-// export default {TagView}
 export {TagView}

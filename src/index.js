@@ -201,7 +201,7 @@ function pathReplace(path,params){
                     if(keyVal[0].toLocaleLowerCase().indexOf(key.toString().toLocaleLowerCase())>-1){
                             keyVal[1]=params[key];
                     }
-                    pathlimit[i]=keyVal.join("=")
+                      pathlimit[i]=keyVal.join("=")
                         
                     }
                 }
@@ -266,27 +266,26 @@ function TagView(opt) {
             store={activeIndex:-1,tagList:[]}
         }
       
-        tagList = distinct(data.tagList.concat(store.tagList,),"path");
+        tagList = distinct(data.tagList.concat(store.tagList),"path");
+       
         store.tagList= tagList;
     }else{
         tagList=data.tagList;
     }
     // console.log(distinct(data.tagList.concat(store.tagList),"path"));
     if (tagList) {
-        console.log(activeIndex,"缓存里面的index")
+        // console.log(activeIndex,"缓存里面的index");
         // console.log(data.tagList)
         // console.log($.extend(data.tagList,store.tagList));
         // console.log(store.tagList);
         $.each(tagList, function(index, val) {
             let { title, path, id, active, isAffix, preload} = val;
             if (active) {
-
                 if(activeIndex>-1){
                     
                 }else{
                   activeIndex = index;
                 }
-                
             }
             tagDom += `<span class="tagItem ${activeIndex==index?"active":"border"}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${pathReplace(path,data.params)}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span>`}</span>`
             
@@ -349,9 +348,10 @@ TagView.prototype = {
     constructor: TagView,
     addTagView(title, path) {
         //添加
+        console.log(this.data.params,"需处理的字段")
         var tagData = {
             title: title,
-            path: path,
+            path: pathReplace(path,this.data.params),
             id: Math.round().toString(16).slice(2)
         }
         addTagView(tagData, this);

@@ -287,7 +287,8 @@ function TagView(opt) {
                   activeIndex = index;
                 }
             }
-            tagDom += `<span class="tagItem ${activeIndex==index?"active":"border"}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${pathReplace(path,data.params)}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="关闭标签页">✖</span>`}</span>`
+            //✖
+            tagDom += `<span class="tagItem ${activeIndex==index?"active":"border"}" ${layOutData?`style="line-height:${layOutData.lineHeight}px"`:''}  data-path="${pathReplace(path,data.params)}">${title}${isAffix?"":`<span class="close" ${layOutData?`style="margin-top:${layOutData.closeMarginTop}px"`:''}  title="\u5173\u95ed\u6807\u7b7e\u9875">\u2716</span>`}</span>`
             
             //frames += preload?`<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${pathReplace(path,data.params)}  frameborder="0"></iframe>`:"";
         })

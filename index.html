@@ -15,16 +15,26 @@
             height: 100%;
             background: #eee;
         }
+        
+        .tagBox .tagViews .tagItem.border::before {
+            width: 0px !important;
+            border-right: 1px solid #777777 !important;
+        }
+        
+        .tagBox .tagViews .tagItem.border:last-child:before {
+            width: 0px;
+            border-right: 1px solid #777777 !important;
+        }
     </style>
 </head>
 
 <body>
     <button class="prev">上一页</button>
     <button class="next">下一页</button>
-    <button class="addTag" data-url="https://www.baidu.com?Arguments=211">百度</button>
+    <button class="addTag" data-url="https://www.baidu.com?Arguments=213">百度</button>
     <button class="addTag" data-url="https://www.hao123.com">hao123</button>
-    <button class="addTag" data-url="https://blog.csdn.net/lyh6665/article/details/107929324">csdn</button>
-    <button class="addTag" data-url="https://gitee.com/">gitee</button>
+    <button class="addTag" data-url="https://blog.csdn.net/lyh6665/article/details/107929324?Arguments=csdn">csdn</button>
+    <button class="addTag" data-url="https://gitee.com?Arguments=gitee">gitee</button>
     <button class="addTag" data-url="http://www.people.com.cn/">人民网</button>
     <button class="addTag" data-url="http://www.dangdang.com/">当当</button>
     <button class="addTag" data-url="https://www.weibo.com/">微博网</button>
@@ -42,21 +52,25 @@
 
     </div>
     <script>
+        var Wzid = Math.random().toString(16).slice(2);
         $(function() {
             //tagList 为默认加载的标签页
-            var tagView = new TagView({
+            tagView = new TagView({
                 cache: {
                     table: "tableData" //缓存表名
                 },
                 el: ".Nav", //标签页承载的容器
                 frameEl: ".frameBox", // iframe 承载的容器
                 height: 30, // tagView的高度
-                // params: {
-                //     "Arguments": Math.random(),
-
-                // }, //"url需要替换的参数"
+                params: {
+                    "Arguments": function(a) {
+                        console.log(a, "传入的参数");
+                        return Wzid
+                            // return Math.random().toString(16).slice(2)
+                    }
+                }, //"url需要替换的参数"
                 tagList: [{
-                    path: "https://www.baidu.com?Arguments=211",
+                    path: "https://www.baidu.com?Arguments=" + Wzid,
                     title: "首页",
                     active: true, //是否选中
                     isAffix: true, //是否固定

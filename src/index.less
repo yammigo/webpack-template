@@ -11,8 +11,9 @@
         width: 100%;
         height: 54px;
         background: #eee;
-        overflow-x: scroll;
-        overflow-y: hidden;
+        overflow: hidden;
+        /**overflow-x: scroll;
+        overflow-y: hidden;**/
         white-space: nowrap;
         font-size: 0px;
         box-sizing: content-box;
@@ -29,6 +30,14 @@
         border-radius: 2px 2px 0px 0px;
         position: relative;
         cursor: pointer;
+        &:last-child.border::before{
+           width:0px;
+
+        }
+        &:last-child.border::before{
+          border-width:0px;
+ 
+         }
         &.border::before {
             content: "";
             display: inline-block;

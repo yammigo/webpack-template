@@ -188,16 +188,16 @@ function addTagView(data, _this) {
     $(".tagViews .tagItem").removeClass("active");
     let newTag = !_this ?
         $(
-            `<span class="tagItem active border"  data-id="${id}" data-path="${path}">${title}<span class="close" title="关闭标签页">✖</span></span>`
+            `<span class="tagItem active border"  data-id="${id}" data-path="${path}"><p class="p1"><span class="p1a"></span></p>${title}<p class="p2"><span class="p2a"></span></p><span class="close" title="关闭标签页">✖</span></span>`
         ) :
         $(
             `<span class="tagItem active border" ${
           _this ? `style="line-height:${_this.layOutData.lineHeight}px"` : ""
-        } data-id="${id}" data-path="${path}">${title}<span class="close" ${
+        } data-id="${id}" data-path="${path}"><p class="p1"><span class="p1a"></span></p>${title}<p class="p2"><span class="p2a"></span></p><span class="close" ${
           _this.layOutData
             ? `style="margin-top:${_this.layOutData.closeMarginTop}px"`
             : ""
-        } title="\u5173\u95ed\u6807\u7b7e\u9875">\u2716</span></span>`
+        } title="关闭标签页">✖</span></span>`
       );
   $(".tagViews").append(newTag);
   console.log("添加store 中对应的数据");
@@ -324,14 +324,14 @@ function TagView(opt) {
         activeIndex == index ? "active":""
       }" ${
         layOutData ? `style="line-height:${layOutData.lineHeight}px"` : ""
-      }  data-path="${pathReplace(path, data.params)}">${title}${
+      }  data-path="${pathReplace(path, data.params)}"><p class="p1"><span class="p1a"></span></p>${title}<p class="p2"><span class="p2a"></span></p>${
         isAffix
           ? ""
           : `<span class="close" ${
               layOutData
                 ? `style="margin-top:${layOutData.closeMarginTop}px"`
                 : ""
-            }  title="\u5173\u95ed\u6807\u7b7e\u9875">\u2716</span>`
+            }  title="关闭标签页">✖</span>`
       }</span>`;
 
       //frames += preload?`<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${pathReplace(path,data.params)}  frameborder="0"></iframe>`:"";
@@ -444,14 +444,14 @@ TagView.prototype = {
           activeIndex == index ? "active":""
         }" ${
           layOutData ? `style="line-height:${layOutData.lineHeight}px"` : ""
-        }  data-path="${pathReplace(path, data.params)}">${title}${
+        }  data-path="${pathReplace(path, data.params)}"><p class="p1"><span class="p1a"></span></p>${title}<p class="p2"><span class="p2a"></span></p>${
           isAffix
             ? ""
             : `<span class="close" ${
                 layOutData
                   ? `style="margin-top:${layOutData.closeMarginTop}px"`
                   : ""
-              }  title="\u5173\u95ed\u6807\u7b7e\u9875">\u2716</span>`
+              }  title="关闭标签页">✖</span>`
         }</span>`;
   
         //frames += preload?`<iframe style="width:100%;height:100%;display:${index==activeIndex?"block":"none"};" src=${pathReplace(path,data.params)}  frameborder="0"></iframe>`:"";

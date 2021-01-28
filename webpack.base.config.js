@@ -70,16 +70,16 @@ module.exports = {
                 exclude: /node_modules/, // 排除node_modules文件夹
                 use: [
 
-                    {
-                        loader: 'style-loader', // 创建 <style></style>
-                    },
-
                     // {
-                    //     loader: MinCssExtractPlugin.loader, // 将处理后的CSS代码提取为独立的CSS文件，可以只在生产环境中配置，
-                    //     // options: {
-                    //     //     publicPath: '../',
-                    //     // },
+                    //     loader: 'style-loader', // 创建 <style></style>
                     // },
+
+                    {
+                        loader: MinCssExtractPlugin.loader, // 将处理后的CSS代码提取为独立的CSS文件，可以只在生产环境中配置，
+                        // options: {
+                        //     publicPath: '../',
+                        // },
+                    },
 
 
                     {

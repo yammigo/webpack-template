@@ -125,6 +125,11 @@ function moveTag() {
 
     $(".frameViewBox iframe").hide();
     $(".frameViewBox iframe").eq(check_index).show();
+    try {
+        var store = JSON.parse(dbUtil.getData());
+    } catch (error) {
+
+    }
     store.activeIndex = currentTag.index();
     dbUtil.setData(JSON.stringify(store));
     console.log(store, "当前存储数据");
@@ -166,16 +171,22 @@ function cheackTag(data) {
 
 function createIframeView(data) {
     var { title, path, id } = data;
-    var frame = $(
-        `<iframe style="width:100%;height:100%;display:none;" src=${path} id=${id} frameborder="0"></iframe>`
-    );
+    // var frame = $(
+    //     `<iframe style="width:100%;height:100%;display:none;" src=${path} id=${id} frameborder="0"></iframe>`
+    // );
+    var frame = document.createElement("iframe");
+    frame.style.cssText = "width:100%;height:100%;display:none;"
+    frame.src = path;
+    frame.setAttribute('frameborder', 0);
+    // try {
+    //     frame.contentWindow.reload();
+    // } catch (error) {
 
-    $(".frameViewBox").append(frame);
-    frame[0].src = path;
-    console.log("加载中");
-    frame.off("load").on("load", function() {
+    // }
+    $(".frameViewBox").append($(frame));
+    $(frame).off("load").on("load", function() {
         console.log(arguments);
-        console.log(frame.index(), "加载完成");
+        console.log($(frame).index(), "加载完成");
     });
 }
 
@@ -301,7 +312,6 @@ function TagView(opt) {
     })
 
     tagList = distinct(data.tagList.concat(store.tagList), "path");
-    console.log(tagList)
     store.tagList = tagList;
   } else {
     tagList = data.tagList;

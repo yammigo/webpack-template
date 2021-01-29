@@ -83,6 +83,7 @@
                         var db = arguments[0];
 
                         function sortData(oldIndex, newIndex) {
+                            console.log("拖拽完成")
                             var data = JSON.parse(db.dbUtil.getData());
                             data.tagList.splice(newIndex, 0, data.tagList.splice(oldIndex, 1)[0]);
                             data.activeIndex = $(".tagItem.active").index();
@@ -99,7 +100,7 @@
                                     //获取拖动后的排序
                                     // var arr = sortable.toArray();
                                     // alert(JSON.stringify(arr));
-                            },
+                            }
                         };
                         //初始化
                         var sortable = Sortable.create(el, ops);

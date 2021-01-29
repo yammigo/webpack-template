@@ -73,14 +73,12 @@ module.exports = {
                     // {
                     //     loader: 'style-loader', // 创建 <style></style>
                     // },
-
                     {
                         loader: MinCssExtractPlugin.loader, // 将处理后的CSS代码提取为独立的CSS文件，可以只在生产环境中配置，
                         // options: {
                         //     publicPath: '../',
                         // },
                     },
-
 
                     {
                         loader: 'css-loader', // 转换css

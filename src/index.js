@@ -1,4 +1,5 @@
 import "./index.less";
+import "./sortable.js";
 
 /**
  * url参数匹配规则
@@ -188,12 +189,12 @@ function addTagView(data, _this) {
     $(".tagViews .tagItem").removeClass("active");
     let newTag = !_this ?
         $(
-            `<span class="tagItem active border"  data-id="${id}" data-path="${path}"><p class="p1"><span class="p1a"></span></p>${title}<p class="p2"><span class="p2a"></span></p><span class="close" title="关闭标签页">✖</span></span>`
+            `<span class="tagItem active border"  data-id="${id}" data-path="${path}">${title}<span class="close" title="关闭标签页">✖</span></span>`
         ) :
         $(
             `<span class="tagItem active border" ${
           _this ? `style="line-height:${_this.layOutData.lineHeight}px"` : ""
-        } data-id="${id}" data-path="${path}"><p class="p1"><span class="p1a"></span></p>${title}<p class="p2"><span class="p2a"></span></p><span class="close" ${
+        } data-id="${id}" data-path="${path}">${title}<span class="close" ${
           _this.layOutData
             ? `style="margin-top:${_this.layOutData.closeMarginTop}px"`
             : ""
@@ -324,7 +325,7 @@ function TagView(opt) {
         activeIndex == index ? "active":""
       }" ${
         layOutData ? `style="line-height:${layOutData.lineHeight}px"` : ""
-      }  data-path="${pathReplace(path, data.params)}"><p class="p1"><span class="p1a"></span></p>${title}<p class="p2"><span class="p2a"></span></p>${
+      }  data-path="${pathReplace(path, data.params)}">${title}${
         isAffix
           ? ""
           : `<span class="close" ${
@@ -352,6 +353,9 @@ function TagView(opt) {
     $(data.el).append(layOut);
     $(data.frameEl).append(viewBox);
     moveTag();
+    /**
+     * 注册事件
+     */
     $(".tagViews").on("click", ".tagItem", function () {
       $(".tagViews .tagItem").removeClass("active");
       $(this).prev();
@@ -386,6 +390,17 @@ function TagView(opt) {
       $(this).parent().remove();
       moveTag();
     });
+    
+    /**
+     * 插件注册
+     */
+     data.plugins&&data.plugins.forEach((plugin) => {
+        if(typeof plugin == "function"){
+           plugin({dbUtil});
+        }
+     })
+     
+
   });
 }
 
@@ -444,7 +459,7 @@ TagView.prototype = {
           activeIndex == index ? "active":""
         }" ${
           layOutData ? `style="line-height:${layOutData.lineHeight}px"` : ""
-        }  data-path="${pathReplace(path, data.params)}"><p class="p1"><span class="p1a"></span></p>${title}<p class="p2"><span class="p2a"></span></p>${
+        }  data-path="${pathReplace(path, data.params)}">${title}${
           isAffix
             ? ""
             : `<span class="close" ${

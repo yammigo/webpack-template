@@ -13,7 +13,7 @@
         html {
             width: 100%;
             height: 100%;
-            background: #eee;
+            background: #fff;
         }
         
         .tagBox .tagViews .tagItem.border::before {
@@ -53,6 +53,7 @@
     </div>
     <script>
         var Wzid = Math.random().toString(16).slice(2);
+
         $(function() {
             //tagList 为默认加载的标签页
             tagView = new TagView({
@@ -76,7 +77,35 @@
                     active: true, //是否选中
                     isAffix: true, //是否固定
                     preload: false //是否预加载自行实现预加载方式
-                }]
+                }],
+                plugins: [
+                    function() {
+                        var db = arguments[0];
+
+                        function sortData(oldIndex, newIndex) {
+                            var data = JSON.parse(db.dbUtil.getData());
+                            data.tagList.splice(newIndex, 0, data.tagList.splice(oldIndex, 1)[0]);
+                            data.activeIndex = $(".tagItem.active").index();
+                            db.dbUtil.setData(JSON.stringify(data))
+                        }
+                        //获取对象
+                        var el = $(".tagViews")[0];
+                        //设置配置
+                        var ops = {
+                            animation: 500,
+                            //拖动结束
+                            onEnd: function(evt) {
+                                sortData(evt.oldIndex, evt.newIndex)
+                                    //获取拖动后的排序
+                                    // var arr = sortable.toArray();
+                                    // alert(JSON.stringify(arr));
+                            },
+                        };
+                        //初始化
+                        var sortable = Sortable.create(el, ops);
+                    }
+
+                ]
             })
             $(".next").on('click', function() {
                 tagView.next(); //下一页
@@ -90,6 +119,9 @@
             $(".reload").click(function() {
                 tagView.refresh(); //刷新当前选中的标签页
             })
+
+
+
         })
     </script>
 </body>

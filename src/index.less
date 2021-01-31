@@ -39,6 +39,7 @@
         }
         &:last-child.border::before{
           border-width:0px;
+          display:none;
  
          }
         &.border::before {
@@ -75,5 +76,12 @@
             background:#d8d8d8;
         }
         }
+    }
+}
+.frameViewBox{
+    position: relative;
+    iframe{
+        position: absolute;
+        left:0px;top:0px;
     }
 }

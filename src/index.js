@@ -1,5 +1,4 @@
 import "./index.less";
-import "./sortable.js";
 
 /**
  * url参数匹配规则
@@ -125,11 +124,12 @@ function moveTag() {
 
     $(".frameViewBox iframe").hide();
     $(".frameViewBox iframe").eq(check_index).show();
-    try {
-        var store = JSON.parse(dbUtil.getData());
-    } catch (error) {
+    // try {
+    //     console.log(JSON.parse(dbUtil.getData()), "数据")
+    //     let store = JSON.parse(dbUtil.getData()) || store;
+    // } catch (error) {
 
-    }
+    // }
     store.activeIndex = currentTag.index();
     dbUtil.setData(JSON.stringify(store));
     console.log(store, "当前存储数据");
@@ -174,16 +174,18 @@ function createIframeView(data) {
     // var frame = $(
     //     `<iframe style="width:100%;height:100%;display:none;" src=${path} id=${id} frameborder="0"></iframe>`
     // );
+    //处理iframe 在ie浏览器中的异常表现
     var frame = document.createElement("iframe");
     frame.style.cssText = "width:100%;height:100%;display:none;"
-    frame.src = path;
+    frame.src = `javascript:document.write('<html><head><body>加载中...</body></head></html>')`;
     frame.setAttribute('frameborder', 0);
-    // try {
-    //     frame.contentWindow.reload();
-    // } catch (error) {
-
-    // }
-    $(".frameViewBox").append($(frame));
+    $(".frameViewBox")[0].appendChild(frame);
+    try {
+        frame.contentWindow.location.href = path;
+        frame.setAttribute("src", path);
+    } catch (error) {
+        frame.src = path;
+    }
     $(frame).off("load").on("load", function() {
         console.log(arguments);
         console.log($(frame).index(), "加载完成");
@@ -406,7 +408,7 @@ function TagView(opt) {
      */
      data.plugins&&data.plugins.forEach((plugin) => {
         if(typeof plugin == "function"){
-           plugin({dbUtil});
+           plugin({store,dbUtil});
         }
      })
      

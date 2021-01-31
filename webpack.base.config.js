@@ -64,6 +64,7 @@ module.exports = {
                 exclude: /node_modules/, //屏蔽不需要处理的文件（文件夹）（可选）
                 loader: 'babel-loader', //loader的名称（必须）
             },
+
             {
                 test: /\.(less|css)$/,
                 // include: [path.resolve(__dirname, 'src')],   // 限制打包范围，提高打包速度

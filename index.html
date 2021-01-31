@@ -8,6 +8,7 @@
     <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
     <!-- <script src="http://localhost:82/Scripts/ChartScript/script/jquery-1.8.2.min.js"></script> -->
     <link rel="stylesheet" href="static/css/reset.main.css">
+    <script src="static/js/sortable.js"></script>
     <style>
         body,
         html {
@@ -84,7 +85,7 @@
 
                         function sortData(oldIndex, newIndex) {
                             console.log("拖拽完成")
-                            var data = JSON.parse(db.dbUtil.getData());
+                            var data = db.store;
                             data.tagList.splice(newIndex, 0, data.tagList.splice(oldIndex, 1)[0]);
                             data.activeIndex = $(".tagItem.active").index();
                             db.dbUtil.setData(JSON.stringify(data))
@@ -93,7 +94,9 @@
                         var el = $(".tagViews")[0];
                         //设置配置
                         var ops = {
-                            animation: 500,
+                            animation: 300,
+                            direction: 'vertical',
+                            // delay: 500,
                             //拖动结束
                             onEnd: function(evt) {
                                 sortData(evt.oldIndex, evt.newIndex)
